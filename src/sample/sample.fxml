@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.ListView?>
+<AnchorPane onKeyPressed="#keyHandler" id="AnchorPane" prefHeight="1200.0" prefWidth="1900.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+    <Pane layoutX="0.0" layoutY="0.0" prefHeight="1200.0" prefWidth="1900.0">
+        <GridPane layoutX="200.0" layoutY="100.0" prefHeight="1200.0" prefWidth="1900.0" fx:id="gridPanel">
+
+        </GridPane>
+        <GridPane layoutX="0.0" layoutY="0.0" fx:id="gridButtonLeft">
+            <Button fx:id="buttonMenu"  onAction="#createLoginForm" prefHeight="50.0" prefWidth="70.0"  text="MAIN"  style="-fx-background-color: #B22222"/>
+        </GridPane>
+
+        <!--<GridPane layoutX="1600.0" layoutY="200.0" fx:id="gridButtonRight">-->
+            <!--<Button fx:id="nextButton"   prefHeight="100.0" prefWidth="200.0"  text="Next steper" textFill="BLACK" />-->
+        <!--</GridPane>-->
+
+
+    </Pane>
+
+    </AnchorPane>
