@@ -1,33 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.RowConstraints?>
-
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.text.Font?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.MenuButton?>
-<?import javafx.scene.control.ListView?>
+
 <AnchorPane onKeyPressed="#keyHandler" id="AnchorPane" prefHeight="1200.0" prefWidth="1900.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
-    <Pane layoutX="0.0" layoutY="0.0" prefHeight="1200.0" prefWidth="1900.0">
-        <GridPane layoutX="200.0" layoutY="100.0" prefHeight="1200.0" prefWidth="1900.0" fx:id="gridPanel">
+    <Pane layoutX="0.0" layoutY="0.0" prefHeight="1200.0" prefWidth="1920.0"  style=" -fx-background-image: url(fone.jpg);">
+        <Label fx:id="dialogLabel"  alignment="TOP_CENTER" prefWidth="1900.0" layoutY="15.0"  text="Hello insert student card and USB flash drive" style=' -fx-text-fill: #DCDCDC;-fx-font-size: 40px ; '/>
+        <Label fx:id="allPagePrint" alignment="TOP_CENTER" prefWidth="1900.0" layoutY="200" text="" style=' -fx-text-fill: #DCDCDC;-fx-font-size: 500px ; '/>
 
+
+        <GridPane layoutX="600.0" layoutY="20.0" prefHeight="1200.0" prefWidth="1900.0" fx:id="gridPanel" >
+            <TextField fx:id="studentIDViewStatic" text="" style='-fx-font-size: 3px ;'/>
         </GridPane>
-        <GridPane layoutX="0.0" layoutY="0.0" fx:id="gridButtonLeft">
-            <Button fx:id="buttonMenu"  onAction="#createLoginForm" prefHeight="50.0" prefWidth="70.0"  text="MAIN"  style="-fx-background-color: #B22222"/>
-        </GridPane>
 
-        <!--<GridPane layoutX="1600.0" layoutY="200.0" fx:id="gridButtonRight">-->
-            <!--<Button fx:id="nextButton"   prefHeight="100.0" prefWidth="200.0"  text="Next steper" textFill="BLACK" />-->
-        <!--</GridPane>-->
+        <GridPane layoutX="600.0" layoutY="100.0" prefHeight="1200.0" prefWidth="1900.0" fx:id="gridPanelList" />
 
+        <GridPane fx:id="gridButtonRight" layoutX="1600.0" layoutY="850.0" />
+
+        <GridPane fx:id="gridButtonLeft" layoutX="200.0" layoutY="850" />
 
     </Pane>
-
-    </AnchorPane>
+</AnchorPane>
