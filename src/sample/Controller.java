@@ -48,30 +48,33 @@ public class Controller {
 
     @FXML
     public Scene scene;
-    public TextField studentIDView = new TextField();
-    public Button updateButton = new Button();
-    public Button nextButton = new Button();
-    public Button nextButtonImage = new Button();
-    public Button printButton = new Button();
-    public Button printButtonImage = new Button();
-    public Button reviewButton = new Button();
-    public ListView listView = new ListView();
-    public Label printText = new Label();
-    public ImageView printImage = new ImageView();
-    public Image imageReview = null;
-    public int numberImage = 1;
-    public Dictionary<String, String> studentInfo = new Hashtable<String, String>();
+    private TextField studentIDView = new TextField();
+    private Button updateButton = new Button();
+    private Button nextButton = new Button();
+    private Button nextButtonImage = new Button();
+    private Button printButton = new Button();
+    private Button printButtonImage = new Button();
+    private Button reviewButton = new Button();
+    private ListView listView = new ListView();
+    private Label printText = new Label();
+    private ImageView printImage = new ImageView();
+    private Image imageReview = null;
+    private int numberImage = 1;
+    private Dictionary<String, String> studentInfo = new Hashtable<String, String>();
     public BufferedImage image;
     private HostServices hostServices ;
-    public String printPdfName;
-    public String  nameImage ;
-    public String allPage;
+    private String printPdfName;
+    private String  nameImage ;
+    private String allPage;
     String allPages;
     public void keyHandler(javafx.scene.input.KeyEvent keyEvent) throws InterruptedException, IOException, SQLException {
         System.out.println(keyEvent.getCode());
         if (keyEvent.getCode() == KeyCode.SHIFT) {
+            Arduino arduino = new Arduino();
+            arduino.main();
             setAllPagePrint(0);
             dialogLabel.setText("Hello insert student card and USB flash drive");
+            checkPreviousAndNowPages();
 
             removedAll();
             createLoginForm();
@@ -453,6 +456,40 @@ public class Controller {
 //        gridPanel.add(printButton,0,1);
 //        gridPanel.add(reviewButton,5,1);
 //    }
+
+    public void  checkPreviousAndNowPages(){
+        String previousPage = "0";
+        String nowPage = "0";
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader("AllPagesPrint.txt"));
+            nowPage = reader.readLine();
+            reader.close();
+        }catch (Exception e){
+            System.out.println("not AllPagesPrint.txt");
+        }
+
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader("FirstArduinoPrint.txt"));
+            previousPage = reader.readLine();
+            reader.close();
+        }catch (Exception e){
+            System.out.println("not FirstArduinoPrint.txt");
+        }
+        System.out.println("firs = " + previousPage + " now page = "+nowPage );
+
+        if((Integer.parseInt(nowPage) - Integer.parseInt(previousPage)) > 50) {
+            BufferedWriter writer = null;
+            try {
+                writer = new BufferedWriter(new FileWriter("FirstArduinoPrint.txt"));
+                writer.write(nowPage);
+                writer.close();
+                dialogLabel.setText("arduino send comand");
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("not FirstArduinoPrint.txt");
+            }
+        }
+    }
 
     public String getUsbDir() throws InterruptedException {
         List<String> trustedUsb;
