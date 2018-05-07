@@ -71,7 +71,7 @@ public class Controller {
         System.out.println(keyEvent.getCode());
         if (keyEvent.getCode() == KeyCode.SHIFT) {
             Arduino arduino = new Arduino();
-            arduino.main();
+            arduino.sendComand();
             setAllPagePrint(0);
             dialogLabel.setText("Hello insert student card and USB flash drive");
             checkPreviousAndNowPages();
