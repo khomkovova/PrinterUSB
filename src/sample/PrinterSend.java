@@ -1,14 +1,16 @@
 package sample;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+
 import javax.print.*;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
 import javax.print.attribute.standard.Copies;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 public class PrinterSend {
 
-     public void print() {
+     public void print_jpg() {
         PrintRequestAttributeSet pras = new HashPrintRequestAttributeSet();
         pras.add(new Copies(1));
         PrintService pss[] = PrintServiceLookup.lookupPrintServices(DocFlavor.INPUT_STREAM.JPEG, pras);
@@ -18,7 +20,7 @@ public class PrinterSend {
         DocPrintJob job = ps.createPrintJob();
          FileInputStream fin = null;
          try {
-             fin = new FileInputStream("YOurImageFileName.JPG");
+             fin = new FileInputStream("pdf.jpg");
          } catch (FileNotFoundException e) {
              System.out.println("not found image");
              e.printStackTrace();
@@ -37,5 +39,17 @@ public class PrinterSend {
              e.printStackTrace();
              System.out.println("not found 2");
          }
+     }
+
+     public void print_file(String name) throws IOException, InterruptedException {
+         System.out.println("name = " + name);
+         String command = null;
+         command = "soffice -p FilePrint/" + name;
+
+         System.out.println(command);
+         Process proc = Runtime.getRuntime().exec(command);
+         proc.waitFor();
+         System.out.println(proc.getInputStream().read());
+
      }
 }

@@ -5,6 +5,7 @@ package sample;
 import javafx.application.HostServices;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -14,22 +15,28 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
+import javafx.scene.text.Font;
+import org.apache.commons.io.FileUtils;
 
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import javax.imageio.ImageIO;
+import javax.swing.filechooser.FileSystemView;
+import javax.usb.UsbConst;
+import javax.usb.UsbControlIrp;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.nio.charset.Charset;
+import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.sql.*;
 import java.util.*;
 
-import static com.sun.org.apache.xalan.internal.xsltc.compiler.util.Type.newObjectType;
+
 
 
 public class Controller {
-    @FXML
-    public Button buttonMenu;
+//    All it for static interface
     @FXML
     GridPane gridPanel;
     @FXML
@@ -38,6 +45,23 @@ public class Controller {
     GridPane gridButtonLeft;
     @FXML
     GridPane gridPanelList;
+
+    @FXML
+    GridPane gridImageIcon;
+
+    @FXML
+    GridPane gridButtonCentr;
+    @FXML
+    GridPane gridbuttonLeftUp;
+    @FXML
+    GridPane gridbuttonLeftDown;
+    @FXML
+    GridPane gridButtonRightImage;
+    @FXML
+    GridPane gridButtonCentrImage;
+    @FXML
+    GridPane gridButtonLeftImage;
+
     @FXML
     TextField studentIDViewStatic;
     @FXML
@@ -45,67 +69,96 @@ public class Controller {
     @FXML
     Label allPagePrint;
 
-
+    //    All it for dynamic interface
     @FXML
     public Scene scene;
-    private TextField studentIDView = new TextField();
+    private TextField studentIDView = new TextField(); //Field for reading data with QR scanner
     private Button updateButton = new Button();
     private Button nextButton = new Button();
+    private Button backButton = new Button();
+    private Button upButton = new Button();
+    private Button upButton2 = new Button();
+    private Button downButton = new Button();
     private Button nextButtonImage = new Button();
+    private Button backButtonImage = new Button();
     private Button printButton = new Button();
     private Button printButtonImage = new Button();
     private Button reviewButton = new Button();
-    private ListView listView = new ListView();
+    private ListView listView = new ListView(); //List for view data on USB
     private Label printText = new Label();
     private ImageView printImage = new ImageView();
+    private ImageView imageIcon = new ImageView();
     private Image imageReview = null;
     private int numberImage = 1;
     private Dictionary<String, String> studentInfo = new Hashtable<String, String>();
-    public BufferedImage image;
+    private BufferedImage image;
     private HostServices hostServices ;
-    private String printPdfName;
-    private String  nameImage ;
+    private String printPdfName = "";
+    private String nameImage ;
     private String allPage;
+    private String nameFileForm;
+    private String dirChild = "";
+    static ArduinoRead arduinoRead;
     String allPages;
-    public void keyHandler(javafx.scene.input.KeyEvent keyEvent) throws InterruptedException, IOException, SQLException {
+    public void keyHandler(javafx.scene.input.KeyEvent keyEvent) throws  InterruptedException {
         System.out.println(keyEvent.getCode());
-        if (keyEvent.getCode() == KeyCode.SHIFT) {
-            Arduino arduino = new Arduino();
-            arduino.sendComand();
-            setAllPagePrint(0);
-            dialogLabel.setText("Hello insert student card and USB flash drive");
-            checkPreviousAndNowPages();
 
+        //Back on main menu
+        if (keyEvent.getCode() == KeyCode.SHIFT) {
+//            PrinterSend printerSend = new PrinterSend();
+//            printerSend.print_file("123.docx");
+
+//            setAllPagePrint(0);
+//            Arduino arduino = new Arduino();
+//            arduino.sendComand(5);
+            arduinoRead = new ArduinoRead();
+            arduinoRead.start();
+
+            checkPreviousAndNowPages();
+//            System.out.println("str = " + backDirChildren("1234/567/789"));
+            removeStudentInfo();
+            dirChild = "";
+//
             removedAll();
             createLoginForm();
+            dialogLabel.setText("Hello insert student card and USB flash drive");
             System.out.println("remove all"+printPdfName);
         }
 
-        if (keyEvent.getCode() == KeyCode.D) {
-            if (nextButton.getText() != null) {
+        if (keyEvent.getCode() == KeyCode.F4) {
+            if(backButton.getText() != null)
+                backButton.fire();
+        }
+
+        if (keyEvent.getCode() == KeyCode.F5) {
+            if(nextButton.getText() != null)
                 nextButton.fire();
-
-            }
-            else if (nextButtonImage.getText() != null) {
-                printButtonImage.setText(null);
-                nextButtonImage.fire();
-            }
-            System.out.println("remove all"+printPdfName);
         }
 
-        if (keyEvent.getCode() == KeyCode.A) {
-            if (updateButton.getText() != null) {
-                nextButton.setText(null);
+        if (keyEvent.getCode() == KeyCode.F3) {
+            if(updateButton.getText() != null)
                 updateButton.fire();
-            }
-            else if (printButtonImage.getText() != null) {
-                nextButtonImage.setText(null);
-                printButtonImage.fire();
-            }
-            System.out.println("remove all"+printPdfName);
         }
 
 
+        if (keyEvent.getCode() == KeyCode.F7) {
+            if(backButtonImage.getText() != null)
+                backButtonImage.fire();
+        }
+
+        if (keyEvent.getCode() == KeyCode.F8) {
+            if(nextButtonImage.getText() != null)
+                nextButtonImage.fire();
+        }
+
+        if (keyEvent.getCode() == KeyCode.F6) {
+            if(printButtonImage.getText() != null)
+                printButtonImage.fire();
+        }
+
+
+
+        //Read name file with list USB or send data of QR scanner
         if (keyEvent.getCode() == KeyCode.ENTER) {
             try {
                 allPagePrint.setText("");
@@ -145,8 +198,8 @@ public class Controller {
 //        System.out.println("all page = " + allPage);
 //        allPagePrint.setText(allPage);
 //    }
-
-    public void setAllPagePrint(int plusPages)  {
+    //Write a number of pages in file
+    private void setAllPagePrint(int plusPages)  {
         try {
             BufferedReader reader = new BufferedReader(new FileReader("AllPagesPrint.txt"));
             allPage = reader.readLine();
@@ -171,7 +224,8 @@ public class Controller {
         }
     }
 
-    public void getUserInfo(String codeID) throws SQLException {
+    //Get data of a user from the databases
+    private void getUserInfo(String codeID) throws SQLException {
         Connection connection = null;
         try {
             connection = DriverManager.getConnection("jdbc:mysql://localhost/UserPrint?" + "user=root&password=12345");
@@ -182,7 +236,7 @@ public class Controller {
                 studentInfo.put("name", resultSet.getString(2));
                 studentInfo.put("studentID", resultSet.getString(3));
                 studentInfo.put("numberPage", resultSet.getString(4));
-                dialogLabel.setText("Hi " + studentInfo.get("name") + " !!!"  + " You have " + studentInfo.get("numberPage") + " pages for print.");
+                dialogLabel.setText(studentInfo.get("name") + " !!!"  + '\n' + " You have " + studentInfo.get("numberPage") + " pages for print.");
                 connection.close();
             }
         } catch (SQLException ex) {
@@ -193,15 +247,29 @@ public class Controller {
         }
     }
 
-    public void createLoginForm(){
+    private void createLoginForm(){
         studentIDView.setText("");
         studentIDView.setStyle("-fx-font-size: 3px ;");
         studentIDView.setId("StudentID");
         gridPanel.add(studentIDView,1,1);
     }
 
+    private void createFileListPage() throws InterruptedException {
+        upButton.setText("Up");
+        upButton.setId("upButton");
+        upButton.setStyle("-fx-background-color: #8B4513;-fx-font-size: 30px ;");
+        upButton.setPrefSize(200, 100);
 
-    public void createFileListPage() throws InterruptedException {
+//        upButton2.setText("");
+//        upButton2.setId("upButton2");
+//        upButton2.setStyle("-fx-background-color: #8B4513;-fx-font-size: 30px ;");
+//        upButton2.setPrefSize(200, 100);
+
+        downButton.setText("Down");
+        downButton.setId("downButton");
+        downButton.setStyle("-fx-background-color: #8B4513;-fx-font-size: 30px ;");
+        downButton.setPrefSize(200, 100);
+
 
         updateButton.setText("Update");
         updateButton.setId("updateButton");
@@ -215,9 +283,45 @@ public class Controller {
                     createFileListPage();
                 } catch (InterruptedException e1) {
                     e1.printStackTrace();
+
                 }
             }
         });
+
+
+        backButton.setText("Back");
+        backButton.setId("backButton");
+        backButton.setStyle("-fx-background-color: #8B4513;-fx-font-size: 30px ;");
+        backButton.setPrefSize(200, 100);
+        backButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+
+                try {
+                    dirChild = backDirChildren(dirChild);
+                    removeFileListPage();
+                    createFileListPage();
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+
+                }
+            }
+        });
+
+        BufferedImage bufferedImageNo = null;
+        try {
+            bufferedImageNo = ImageIO.read(new File("noname.jpg"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if(bufferedImageNo != null) {
+            imageReview = SwingFXUtils.toFXImage(bufferedImageNo, null);
+
+            imageIcon.setImage(imageReview);
+            imageIcon.setFitWidth(210.5 * 2);
+            imageIcon.setFitHeight(297.5 * 2);
+
+        }
+
 
 
         nextButton.setText("Next");
@@ -227,64 +331,128 @@ public class Controller {
         nextButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
                 if (printPdfName != null) {
-                    updateButton.setText(null);
-                    nextButton.setText(null);
-                    removeFileListPage();
-                    String namePage = String.valueOf(numberImage) + ".jpg";
-                    System.out.println(namePage);
-                    ConvertPdfToJPG convertPdfToJPG = new ConvertPdfToJPG();
-                    if (printPdfName.contains(".pdf")) {
 
+                    // If the print name is a folder then change child directory and restruct FileListPage.
+                    if(printPdfName.contains("Folder : ")){
                         try {
-                            System.out.println("print pdf = " + printPdfName);
-                            convertPdfToJPG.convertPdfJpg(getUsbDir() + printPdfName);
-                        } catch (IOException e1) {
-                            e1.printStackTrace();
+                            dirChild += printPdfName.replace("Folder : ", "") + "/";
+                            System.out.println("DirChild = " + dirChild);
+                            removedAll();
+                            createFileListPage();
+
                         } catch (InterruptedException e1) {
-                            e1.printStackTrace();
-                        }
-                    } else if (printPdfName.contains(".doc")) {
-                        System.out.println("convert start");
-                        System.out.println("print pdf = " + printPdfName);
-                        WorldToPDF worldToPDF = new WorldToPDF();
-                        try {
-                            worldToPDF.conwertWorldPdf(getUsbDir() + printPdfName);
-                            printPdfName = printPdfName.substring(0, printPdfName.indexOf('.')) + ".pdf";
-                            System.out.println("print pdf = " + printPdfName);
-                            convertPdfToJPG.convertPdfJpg("out/production/Printer_PDF_DOC/PDF/" + printPdfName);
-                        } catch (InterruptedException e1) {
-                            e1.printStackTrace();
-                        } catch (IOException e1) {
                             e1.printStackTrace();
                         }
                     }
+                    // Create imagePage and send the file on convert
+                    else {
+                        nameFileForm = printPdfName;
+                        backButton.setText(null);
+                        updateButton.setText(null);
+                        nextButton.setText(null);
+                        removeFileListPage();
+                        String namePage = String.valueOf(numberImage) + ".jpg";
+                        System.out.println(namePage);
+                        ConvertPdfToJPG convertPdfToJPG = new ConvertPdfToJPG();
+                        File fileRead = null;
+                        try {
+                            fileRead = new File(getUsbDir() + nameFileForm);
+                        } catch (InterruptedException e1) {
+                            e1.printStackTrace();
+                        }
+                        File dir = new File("FilePrint");
+                        dir.mkdir();
+                        File fileWrite = new File("FilePrint");
+                        try {
+                            FileUtils.copyFileToDirectory(fileRead, fileWrite);
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
 
-                    createImagePage();
+                        if (printPdfName.contains(".pdf")) {
+
+                            try {
+                                System.out.println("print pdf = " + printPdfName);
+                                convertPdfToJPG.convertPdfJpg(getUsbDir() + printPdfName);
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
+                            } catch (InterruptedException e1) {
+                                e1.printStackTrace();
+                            }
+                        } else if (printPdfName.contains(".doc")) {
+                            System.out.println("convert start");
+                            System.out.println("print pdf = " + printPdfName);
+                            WorldToPDF worldToPDF = new WorldToPDF();
+                            try {
+                                worldToPDF.conwertWorldPdf(getUsbDir() + printPdfName);
+                                printPdfName = printPdfName.substring(0, printPdfName.indexOf('.')) + ".pdf";
+                                System.out.println("print pdf = " + printPdfName);
+                                convertPdfToJPG.convertPdfJpg("PDF/" + printPdfName);
+                            } catch (InterruptedException e1) {
+                                e1.printStackTrace();
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
+                        }
+
+                        createImagePage();
+                    }
 
                 }
             }
         });
 
         try {
+            gridButtonCentr.add(backButton, 1,0);
             gridButtonLeft.add(updateButton, 0, 0);
             gridButtonRight.add(nextButton, 5, 0);
+            gridbuttonLeftUp.add(upButton, 1, 0);
+//            gridbuttonLeftUp.add(upButton2, 1, 1);
+            gridbuttonLeftDown.add(downButton, 2, 0);
+            gridImageIcon.add(imageIcon, 0, 0);
+
         }catch (Exception e){
             System.out.println("updateButton it is");
         }
 
         listView.setMinWidth(700);
         listView.setLayoutY(200);
-        listView.setStyle("-fx-background-color: transparent;-fx-control-inner-background: transparent;-fx-font-size: 25px;-fx-text-fill: #CCA300;");
+        listView.setStyle("-fx-background-color: rgba(0, 100, 100, 0.5);;-fx-control-inner-background: transparent;-fx-font-size: 25px;-fx-text-fill: #CCA300;");
         String usbDir = getUsbDir();
         if(usbDir != null) {
-            List<String> listUsb = usbList(getUsbDir());
+            List<String> listUsb = usbList(getUsbDir() + dirChild);
             if (listUsb != null) {
                 ObservableList<String> items = FXCollections.observableArrayList(listUsb);
                 listView.setItems(items);
             }
         }
         listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if(newValue != null) printPdfName = newValue.toString();
+            if(newValue != null) {
+                gridImageIcon.getChildren().remove(imageIcon);
+
+                printPdfName = newValue.toString();
+                String name = "";
+                if(printPdfName.contains(""))  name = "noname.jpg";
+                if(printPdfName.contains(".pdf"))  name = "pdf.jpg";
+                if(printPdfName.contains(".doc"))  name = "doc.jpg";
+                if(printPdfName.contains("Folder"))  name = "folder.jpg";
+                if(!name.equals("")){
+                BufferedImage bufferedImage = null;
+                try {
+                    bufferedImage = ImageIO.read(new File(name));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if(bufferedImage != null){
+                imageReview = SwingFXUtils.toFXImage(bufferedImage, null);
+
+                imageIcon.setImage(imageReview);
+                imageIcon.setFitWidth(210.5*2);
+                imageIcon.setFitHeight(297.5*2);
+                gridImageIcon.add(imageIcon,0,0);
+                }
+                }
+            }
             else printPdfName = null;
         });
         gridPanelList.add(listView,3,1);
@@ -322,7 +490,7 @@ public class Controller {
 //
 //    }
 
-    public void createImagePage(){
+    private void createImagePage(){
         nameImage = "JPG/"+String.valueOf(numberImage)  + ".jpg";
         dialogLabel.setText("");
         gridPanel.getChildren().remove(printImage);
@@ -340,8 +508,17 @@ public class Controller {
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
+
+//                printPdfName
+                dirChild = "";
+                removeStudentInfo();
                 removedAll();
                 createLoginForm();
+                try {
+                    checkPreviousAndNowPages();
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
             }
         });
 
@@ -355,8 +532,7 @@ public class Controller {
                 nextButtonImage.setText(null);
                 removePrintList();
                 removeImagePage();
-
-                nameImage = "JPG/"+String.valueOf(numberImage)  + ".jpg";
+                nameImage = "JPG/"+String.valueOf(numberImage) + ".jpg";
                 System.out.println(nameImage);
                 createImagePage();
             }
@@ -364,9 +540,32 @@ public class Controller {
 
 
 
+        backButtonImage.setText("Back");
+        backButtonImage.setId("BackButtonPage");
+        backButtonImage.setStyle("-fx-background-color: #8B4513;-fx-font-size: 30px ;");
+        backButtonImage.setPrefSize(200, 100);
+        backButtonImage.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                if(numberImage > 2) {
+                    backButtonImage.setText(null);
+                    removePrintList();
+                    removeImagePage();
+
+                    numberImage-=2;
+                    nameImage = "JPG/" + String.valueOf(numberImage) + ".jpg";
+                    System.out.println(nameImage);
+                    createImagePage();
+                }
+            }
+        });
+
+
+
+
         System.out.println("name image = " + nameImage);
         try {
-            imageReview = new Image(nameImage);
+            BufferedImage bufferedImage = ImageIO.read(new File(nameImage));
+            imageReview = SwingFXUtils.toFXImage(bufferedImage, null);
 
             printImage.setImage(imageReview);
             printImage.setFitWidth(210*3.5);
@@ -376,10 +575,12 @@ public class Controller {
             imageReview.cancel();
             numberImage++;
             System.out.println("ok open image = " + nameImage);
-            gridButtonLeft.getChildren().remove(printButtonImage);
-            gridButtonRight.getChildren().remove(nextButtonImage);
-            gridButtonLeft.add(printButtonImage,0,1);
-            gridButtonRight.add(nextButtonImage,5,1);
+            gridButtonLeftImage.getChildren().remove(printButtonImage);
+            gridButtonRightImage.getChildren().remove(nextButtonImage);
+            gridButtonCentrImage.getChildren().remove(backButtonImage);
+            gridButtonCentrImage.add(backButtonImage,1,1);
+            gridButtonLeftImage.add(printButtonImage,0,1);
+            gridButtonRightImage.add(nextButtonImage,5,1);
         }
         catch (Exception e){
             System.out.println("not image");
@@ -389,14 +590,17 @@ public class Controller {
                 nameImage = "JPG/" +String.valueOf(numberImage)  + ".jpg";
                 System.out.println(nameImage);
                 createImagePage();
-                gridButtonLeft.getChildren().remove(printButtonImage);
-                gridButtonRight.getChildren().remove(nextButtonImage);
-                gridButtonLeft.add(printButtonImage,0,1);
-                gridButtonRight.add(nextButtonImage,5,1);
+                gridButtonLeftImage.getChildren().remove(printButtonImage);
+                gridButtonRightImage.getChildren().remove(nextButtonImage);
+                gridButtonCentrImage.getChildren().remove(backButtonImage);
+                gridButtonCentrImage.add(backButtonImage,1,1);
+                gridButtonLeftImage.add(printButtonImage,0,1);
+                gridButtonRightImage.add(nextButtonImage,5,1);
             }
             else {
-                gridButtonLeft.getChildren().remove(printButtonImage);
-                gridButtonRight.getChildren().remove(nextButtonImage);
+                gridButtonLeftImage.getChildren().remove(printButtonImage);
+                gridButtonRightImage.getChildren().remove(nextButtonImage);
+                gridButtonCentr.getChildren().remove(backButtonImage);
 //                removeImagePage();
                 createLoginForm();
                 dialogLabel.setText("This format is not supported");
@@ -409,55 +613,55 @@ public class Controller {
 
     }
 
-//    public void creatPritList(){
-//        printButton.setText("Print");
-//        printButton.setId("printButton");
-//        printButton.setPrefSize(200, 100);
-//        printButton.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override public void handle(ActionEvent e) {
-//                removePrintList();
-//                removeImageDir();
-//            }
-//        });
-//
-//
-//        reviewButton.setText("Review");
-//        reviewButton.setId("reviewButton");
-//        reviewButton.setPrefSize(200, 100);
-//        reviewButton.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override public void handle(ActionEvent e) {
-//                removePrintList();
-//                String namePage = String.valueOf(numberImage)  + ".jpg";
-//                System.out.println(namePage);
-////                createImagePage(namePage );
-//                if(printPdfName.equals(".pdf")) {
-//                    ConvertPdfToJPG convertPdfToJPG = new ConvertPdfToJPG();
-//                    try {
-//                        convertPdfToJPG.convertPdfJpg(getUsbDir() + printPdfName);
-//                        createImagePage();
-//                    } catch (IOException e1) {
-//                        e1.printStackTrace();
-//                    } catch (InterruptedException e1) {
-//                        e1.printStackTrace();
-//                    }
-//                }
-//                else {
-//
-//                }
-//
-//            }
-//        });
-//
-//        printText.setText("   Do_you want print or review?  "+ printPdfName);
-//        printText.setId("printText");
-//        printText.setPrefSize(700,75 );
-//        printText.setFont(Font.font("Cambria", 25));
-//        gridPanel.add(printText,3,0);
-//        gridPanel.add(printButton,0,1);
-//        gridPanel.add(reviewButton,5,1);
-//    }
+    public void creatPritList(){
+        printButton.setText("Print");
+        printButton.setId("printButton");
+        printButton.setPrefSize(200, 100);
+        printButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                removePrintList();
+                removeImageDir();
+            }
+        });
 
-    public void  checkPreviousAndNowPages(){
+
+        reviewButton.setText("Review");
+        reviewButton.setId("reviewButton");
+        reviewButton.setPrefSize(200, 100);
+        reviewButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                removePrintList();
+                String namePage = String.valueOf(numberImage)  + ".jpg";
+                System.out.println(namePage);
+//                createImagePage(namePage );
+                if(printPdfName.equals(".pdf")) {
+                    ConvertPdfToJPG convertPdfToJPG = new ConvertPdfToJPG();
+                    try {
+                        convertPdfToJPG.convertPdfJpg(getUsbDir() + printPdfName);
+                        createImagePage();
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+                else {
+
+                }
+
+            }
+        });
+
+        printText.setText("   Do_you want print or review?  "+ printPdfName);
+        printText.setId("printText");
+        printText.setPrefSize(700,75 );
+        printText.setFont(Font.font("Cambria", 25));
+        gridPanel.add(printText,3,0);
+        gridPanel.add(printButton,0,1);
+        gridPanel.add(reviewButton,5,1);
+    }
+
+    private void  checkPreviousAndNowPages() throws InterruptedException {
         String previousPage = "0";
         String nowPage = "0";
         try {
@@ -466,6 +670,12 @@ public class Controller {
             reader.close();
         }catch (Exception e){
             System.out.println("not AllPagesPrint.txt");
+            File fileAllPages = new File("AllPagesPrint.txt");
+            try {
+                fileAllPages.createNewFile();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
         }
 
         try {
@@ -474,15 +684,29 @@ public class Controller {
             reader.close();
         }catch (Exception e){
             System.out.println("not FirstArduinoPrint.txt");
+            File fileFirstPages = new File("FirstArduinoPrint.txt");
+            try {
+                fileFirstPages.createNewFile();
+                BufferedWriter writer = null;
+                writer = new BufferedWriter(new FileWriter("FirstArduinoPrint.txt"));
+                writer.write('0');
+                writer.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
         }
         System.out.println("firs = " + previousPage + " now page = "+nowPage );
+        int diferencePages = 0;
+        diferencePages = Integer.parseInt(nowPage) - Integer.parseInt(previousPage);
 
-        if((Integer.parseInt(nowPage) - Integer.parseInt(previousPage)) > 50) {
+        if(diferencePages > 2) {
             BufferedWriter writer = null;
             try {
                 writer = new BufferedWriter(new FileWriter("FirstArduinoPrint.txt"));
                 writer.write(nowPage);
                 writer.close();
+                Arduino arduino = new Arduino();
+                arduino.sendComand(diferencePages);
                 dialogLabel.setText("arduino send comand");
             } catch (IOException e) {
                 e.printStackTrace();
@@ -491,7 +715,7 @@ public class Controller {
         }
     }
 
-    public String getUsbDir() throws InterruptedException {
+    private String getUsbDir() throws InterruptedException {
         List<String> trustedUsb;
         trustedUsb = Arrays.asList("2CD225F7D225C5C4", "E4C2D7712B4CAF38", "51DF4EA45A129B6B", "CFB60A6580FE86CE");
         List<String> results;
@@ -502,7 +726,17 @@ public class Controller {
             files = new File("/media/vova/").listFiles();
 
             for (File file : files)
-                if (file.isDirectory()) results.add(file.getName());
+                if (file.isDirectory()) {
+                    BasicFileAttributes attr = null;
+                    try {
+                        attr = Files.readAttributes(Paths.get(file.getPath()), BasicFileAttributes.class);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+//                    System.out.println("total spase = "+attr.);
+
+                results.add(file.getName());
+                }
 
             for (int i = 0; i < trustedUsb.size(); i++)
                 for (int j = 0; j < results.size(); j++)
@@ -511,20 +745,42 @@ public class Controller {
                         j--;
                     }
             if ((results.size() != 0)&&(results.get(0) != null)) {
+
                 return "/media/vova/" + results.get(0) + "/";
             }
             Thread.sleep(500);
         }
         return null;
     }
+//
+//    private String getUsbDir() {
+//        File media_file;
+//        media_file = new File("/media/");
+//        for (int m = 0; m < 5; m++) {
+//            File[] files = media_file.listFiles();
+//            File user_file = files[0];
+//            File[] usb_file = user_file.listFiles();
+//            if (usb_file[0].getPath() != null) {
+//                System.out.println(usb_file[0].getPath());
+//                return usb_file[0].getPath() + "/";
+//            }
+//
+//
+//        }
+//        return null;
+//    }
 
-    public List<String> usbList(String usbDirectory) {
+
+    private List<String> usbList(String usbDirectory) {
         try {
             List<String> results = new ArrayList<String>();
             File[] files = new File(usbDirectory).listFiles();
             for (File file : files) {
                 if ((!file.getName().contains(" ")) && file.isFile() && ((file.getName().contains(".pdf") || file.getName().contains(".doc") || file.getName().contains(".docx")))) {
                     results.add(file.getName());
+                }
+                else if(file.isDirectory()){
+                    results.add("Folder : " + file.getName());
                 }
             }
             System.out.print(results);
@@ -535,8 +791,8 @@ public class Controller {
         }
     }
 
-    public void printImage() throws SQLException, IOException {
-        File[] files = new File("/home/vova/IdeaProjects/Printer_PDF_DOC/out/production/Printer_PDF_DOC/JPG").listFiles();
+    private void printImage() throws SQLException, IOException {
+        File[] files = new File("JPG").listFiles();
         System.out.println("number = " + studentInfo.get("numberPage"));
         int numberPage = Integer.parseInt(studentInfo.get("numberPage"));
         if (files.length <= numberPage) {
@@ -549,16 +805,18 @@ public class Controller {
                 preparedStmt.setInt   (1, (numberPage - files.length));
                 preparedStmt.setString(2, studentInfo.get("studentID"));
                 preparedStmt.executeUpdate();
+                PrinterSend printerSend = new PrinterSend();
+                printerSend.print_file(nameFileForm);
+
+
+                setAllPagePrint(files.length);
+
 
             }
             catch (Exception e) {
                 System.out.println("Sql not work");
             }
-            setAllPagePrint(files.length);
             dialogLabel.setText("Hello insert student card and USB flash drive");
-
-//            PrinterSend printerSend = new PrinterSend();
-//            printerSend.print();
             connection.close();
 
             System.out.println("OK PRINT");
@@ -570,32 +828,47 @@ public class Controller {
         }
     }
 
-    public void removeMenu(){
-        gridButtonLeft.getChildren().remove(buttonMenu);
+//    public void removeMenu(){
+//        gridButtonLeft.getChildren().remove(buttonMenu);
+//    }
+
+    private String backDirChildren(String child){
+        String[] arrChild= child.split("/");
+        String dirBack = "";
+        for(int i = 0; i < arrChild.length -1; i++){
+            dirBack += arrChild[i];
+        }
+        return dirBack;
+
     }
 
-    public void removeStudentIDPage(){
+    private void removeStudentIDPage(){
         gridPanel.getChildren().remove(studentIDView);
         gridPanel.getChildren().remove(studentIDViewStatic);
         System.out.println("Student removed");
     }
 
-    public void removedAll(){
-        numberImage = 1;
+    private void removeStudentInfo(){
         studentInfo.remove("name");
         studentInfo.remove("studentID");
         studentInfo.remove("numberPage");
+    }
+
+    private void removedAll(){
+        numberImage = 1;
+
         removePDFDir();
         removeStudentIDPage();
         removeImageDir();
         removeImagePage();
         removeFileListPage();
         removePrintList();
+        removeDOCDir();
     }
 
-    public void removePDFDir(){
+    private void removeDOCDir(){
         try {
-            File[] files = new File("/home/vova/IdeaProjects/Printer_PDF_DOC/out/production/Printer_PDF_DOC/PDF").listFiles();
+            File[] files = new File("FilePrint").listFiles();
             for (File file : files) {
                 if (file.isFile()){
                     file.delete();
@@ -608,9 +881,24 @@ public class Controller {
         }
     }
 
-    public void removeImageDir(){
+    private void removePDFDir(){
         try {
-            File[] files = new File("/home/vova/IdeaProjects/Printer_PDF_DOC/out/production/Printer_PDF_DOC/JPG").listFiles();
+            File[] files = new File("PDF").listFiles();
+            for (File file : files) {
+                if (file.isFile()){
+                    file.delete();
+                }
+            }
+            return ;
+        } catch (Exception e) {
+            System.out.print("exept");
+            return ;
+        }
+    }
+
+    private void removeImageDir(){
+        try {
+            File[] files = new File("JPG").listFiles();
             for (File file : files) {
                 if (file.isFile()){
                     file.delete();
@@ -625,31 +913,38 @@ public class Controller {
 
     }
 
-    public void removeImagePage(){
+    private void removeImagePage(){
         try {
-
-
-            gridButtonLeft.getChildren().remove(printButtonImage);
-            gridButtonRight.getChildren().remove(nextButtonImage);
+//            printButtonImage.setText("");
+//            backButtonImage.setText("");
+//            nextButtonImage.setText("");
+            gridButtonLeftImage.getChildren().remove(printButtonImage);
+            gridButtonCentrImage.getChildren().remove(backButtonImage);
+            gridButtonRightImage.getChildren().remove(nextButtonImage);
             gridPanel.getChildren().remove(printImage);
+
         }
         catch (Exception e){
             System.out.println("is removeImagePage remove");
         }
     }
 
-    public void removeFileListPage(){
+    private void removeFileListPage(){
         try {
             gridButtonRight.getChildren().remove(nextButton);
             gridButtonLeft.getChildren().remove(updateButton);
+            gridButtonCentr.getChildren().remove(backButton);
             gridPanelList.getChildren().remove(listView);
+            gridbuttonLeftUp.getChildren().remove(upButton);
+            gridbuttonLeftDown.getChildren().remove(downButton);
+            gridImageIcon.getChildren().remove(imageIcon);
         }
         catch (Exception e){
             System.out.println("is removeButtonList remove");
         }
     }
 
-    public void removePrintList(){
+    private void removePrintList(){
         try {
 
 

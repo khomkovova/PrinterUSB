@@ -6,21 +6,50 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Label?>
 
-<AnchorPane onKeyPressed="#keyHandler" id="AnchorPane" prefHeight="1200.0" prefWidth="1900.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
-    <Pane layoutX="0.0" layoutY="0.0" prefHeight="1200.0" prefWidth="1920.0"  style=" -fx-background-image: url(fone.jpg);">
-        <Label fx:id="dialogLabel"  alignment="TOP_CENTER" prefWidth="1900.0" layoutY="15.0"  text="Hello insert student card and USB flash drive" style=' -fx-text-fill: #DCDCDC;-fx-font-size: 40px ; '/>
-        <Label fx:id="allPagePrint" alignment="TOP_CENTER" prefWidth="1900.0" layoutY="200" text="" style=' -fx-text-fill: #DCDCDC;-fx-font-size: 500px ; '/>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.control.Button?>
+<AnchorPane onKeyPressed="#keyHandler" id="AnchorPane" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+    <Pane  fx:id="Pane" prefWidth="1920" style=" -fx-background-image: url(fone.png);">
+
+        <!--<ImageView fx:id="imageView"-->
+                <!--fitHeight="150.0"-->
+                <!--fitWidth="200.0"-->
+                <!--layoutX="61.0"-->
+                <!--layoutY="83.0"-->
+                <!--pickOnBounds="true"-->
+                <!--preserveRatio="true"-->
+        <!--&gt;-->
+            <!--<image>-->
+                <!--<Image url="gif.gif" backgroundLoading="true"/>-->
+            <!--</image>-->
+        <!--</ImageView>-->
+        <Label fx:id="dialogLabel"   alignment="TOP_LEFT" prefWidth="1920" prefHeight="60" text="Hello insert student card and USB flash drive" style=' -fx-font-size: 20px ; -fx-background-color: rgba(10, 40, 40, 0.9); -fx-text-fill: rgba(150, 180, 180, 0.9)' />
+        <Label fx:id="allPagePrint"  prefWidth="${Pane.prefWidth}" layoutY="200" style=' -fx-text-fill: #DCDCDC;-fx-font-size: 500px ; '/>
 
 
-        <GridPane layoutX="600.0" layoutY="20.0" prefHeight="1200.0" prefWidth="1900.0" fx:id="gridPanel" >
-            <TextField fx:id="studentIDViewStatic" text="" style='-fx-font-size: 3px ;'/>
+        <GridPane fx:id="gridPanel" layoutX="600.0" layoutY="20.0" prefHeight="1200.0" prefWidth="1900.0"  >
+            <TextField fx:id="studentIDViewStatic" style='-fx-font-size: 3px ;'/>
         </GridPane>
 
-        <GridPane layoutX="600.0" layoutY="100.0" prefHeight="1200.0" prefWidth="1900.0" fx:id="gridPanelList" />
+        <GridPane fx:id="gridPanelList" layoutX="200.0" layoutY="100.0" prefHeight="1200.0" prefWidth="1900.0"  />
+        <GridPane fx:id="gridImageIcon" layoutX="1150.0" layoutY="100.0" prefHeight="1200.0" prefWidth="1900.0"  />
 
-        <GridPane fx:id="gridButtonRight" layoutX="1600.0" layoutY="850.0" />
+        <GridPane fx:id="gridButtonRightImage" layoutX="1600.0" layoutY="850.0" />
+
+        <GridPane fx:id="gridButtonLeftImage" layoutX="200.0" layoutY="850" />
+
+        <GridPane fx:id="gridButtonCentrImage" layoutX="800.0" layoutY="850" />
+
+        <GridPane fx:id="gridButtonRight" layoutX="1600.0" layoutY="800.0" />
 
         <GridPane fx:id="gridButtonLeft" layoutX="200.0" layoutY="850" />
+
+        <GridPane fx:id="gridButtonCentr" layoutX="1600.0" layoutY="200" />
+
+        <GridPane fx:id="gridbuttonLeftUp" layoutX="1600" layoutY="400" />
+
+        <GridPane fx:id="gridbuttonLeftDown" layoutX="1600" layoutY="600" />
 
     </Pane>
 </AnchorPane>
